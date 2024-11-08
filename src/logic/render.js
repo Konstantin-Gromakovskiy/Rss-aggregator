@@ -1,16 +1,20 @@
-const renderError = (state, input) => {
+const renderError = (state, elements) => {
+  const feedbackElem = elements.feedback;
+  const inputElem = elements.input;
   const errorMessage = state.errors;
   if (errorMessage) {
-    input.classList.add('is-invalid');
+    inputElem.classList.add('is-invalid');
+    feedbackElem.textContent = state.errors;
   } else {
-    input.classList.remove('is-invalid');
+    inputElem.classList.remove('is-invalid');
+    feedbackElem.textContent = '';
   }
 };
 
-export default (state, input) => (path, value, previosValue) => {
+export default (state, elements) => (path, value, previosValue) => {
   switch (path) {
     case 'errors':
-      renderError(state, input);
+      renderError(state, elements);
       break;
     default:
   }

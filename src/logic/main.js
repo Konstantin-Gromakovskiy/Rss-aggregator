@@ -1,6 +1,8 @@
 import * as yup from 'yup';
 import onChange from 'on-change';
+import i18next from 'i18next';
 import render from './render.js';
+import resources from '../i18next/resources.js';
 
 const app = () => {
   const initialState = {
@@ -11,12 +13,21 @@ const app = () => {
     addedUrl: [],
   };
 
-  const input = document.querySelector('#url-input');
-  const form = document.querySelector('form');
+  const elements = {
+    form: document.querySelector('form'),
+    input: document.querySelector('#url-input'),
+    feedback: document.querySelector('.feedback'),
+  };
 
-  const state = onChange(initialState, render(initialState, input));
+  const i18n = i18next.createInstance();
+  i18n.init({
+    lng: 'ru',
+    resources,
+  });
 
-  form.addEventListener('submit', (event) => {
+  const state = onChange(initialState, render(initialState, elements));
+
+  elements.form.addEventListener('submit', (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const url = formData.get('url');
@@ -27,14 +38,13 @@ const app = () => {
         state.errors = '';
         state.addedUrl.push(url);
         state.validation = true;
-        form.reset();
-        input.focus();
+        elements.form.reset();
+        elements.input.focus();
         console.log(initialState.addedUrl);
       })
       .catch((error) => {
-        state.errors = error.message;
+        state.errors = i18n.t(error.type);
         state.validation = false;
-        console.log(error.message);
       });
   });
 };
