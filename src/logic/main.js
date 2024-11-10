@@ -9,7 +9,7 @@ const app = () => {
   const initialState = {
     url: '',
     errors: '',
-    processing: 'filling', // sending, sent
+    processing: 'filling', // sending, sent, editing
     validation: null,
     addedUrl: [],
     addedDocuments: [],
@@ -50,7 +50,7 @@ const app = () => {
       })
       .then((documentData) => {
         state.addedUrl.push(url);
-        state.addedDocuments.push(documentData);
+        state.addedDocuments.unshift(documentData);
         state.processing = 'filling';
       })
       .catch((error) => {

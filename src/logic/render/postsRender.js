@@ -27,12 +27,13 @@ export default (state, elements) => {
       post.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
       postsList.appendChild(post);
 
-      const href = item.querySelector('link').nextSibling.textContent;
+      const href = item.querySelector('link').nextSibling.textContent.replace(/((<!)?\[CDATA\[)| ?(\]\]>?$)/mg, '');
       const linkText = item.querySelector('title').textContent;
       const link = document.createElement('a');
       link.classList.add('fw-bold');
       link.href = href;
-      link.textContent = linkText;
+      link.target = '_blank';
+      link.textContent = linkText.replace(/((<!)?\[CDATA\[)| ?(\]\]>?$)/mg, '');
       post.appendChild(link);
 
       const alertButton = document.createElement('button');

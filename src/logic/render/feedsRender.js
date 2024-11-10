@@ -27,13 +27,14 @@ export default (state, elements) => {
     const channelTitle = rssDocument.querySelector('channel > title').textContent;
     const feedTitle = document.createElement('h3');
     feedTitle.classList.add('h6', 'm-0');
-    feedTitle.textContent = channelTitle;
+    feedTitle.textContent = channelTitle.replace(/((<!)?\[CDATA\[)| ?(\]\]>?$)/mg, '');
     feedElem.appendChild(feedTitle);
 
     const channelDescription = rssDocument.querySelector('channel > description').firstChild.textContent;
+    console.dir(rssDocument.querySelector('channel > description').firstChild);
     const feedDescription = document.createElement('p');
     feedDescription.classList.add('m-0', 'small', 'text-black-50');
-    feedDescription.textContent = channelDescription;
+    feedDescription.textContent = channelDescription.replace(/((<!)?\[CDATA\[)| ?(\]\]>?$)/mg, '');
     feedElem.appendChild(feedDescription);
   });
 };
