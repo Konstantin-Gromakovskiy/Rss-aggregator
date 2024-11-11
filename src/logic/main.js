@@ -4,6 +4,7 @@ import i18next from 'i18next';
 import render from './render/mainRender.js';
 import resources from '../i18next/resources.js';
 import rssRequest from './rssRequest.js';
+import domParser from './domParser.js';
 
 const app = () => {
   const initialState = {
@@ -11,9 +12,7 @@ const app = () => {
     errors: '',
     processing: 'filling', // sending, sent, editing
     validation: null,
-    addedUrl: [],
-    addedDocuments: [],
-    rssList: '',
+    resources: [],
   };
 
   const elements = {
@@ -38,19 +37,20 @@ const app = () => {
     const formData = new FormData(event.target);
     const url = formData.get('url');
     state.url = url;
-    const urlSchema = yup.string().url().notOneOf(initialState.addedUrl);
+    const urlSchema = yup.string().url().notOneOf(state.resources.map((resource) => resource.link));
     urlSchema.validate(state.url)
       .then(() => {
         state.processing = 'sending';
         state.errors = '';
-        return rssRequest(state.url)
+        const documentData = rssRequest(state.url)
           .catch((error) => {
             throw new Error(error.message);
           });
+        return documentData;
       })
       .then((documentData) => {
-        state.addedUrl.push(url);
-        state.addedDocuments.unshift(documentData);
+        console.log(state.resources);
+        state.resources.unshift(domParser(documentData));
         state.processing = 'filling';
       })
       .catch((error) => {

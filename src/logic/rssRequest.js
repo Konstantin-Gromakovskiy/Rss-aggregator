@@ -1,5 +1,4 @@
 import axios from 'axios';
-import domParser from './domParser.js';
 
 const rssRequest = (url) => {
   const proxyUrl = 'https://allorigins.hexlet.app/raw';
@@ -8,7 +7,7 @@ const rssRequest = (url) => {
 
   return axios.get(fullUrl)
     .then((response) => {
-      if (response.headers['content-type'].includes('xml')) return domParser(response);
+      if (response.headers['content-type'].includes('xml')) return response.data;
       throw new Error('its not rss');
     })
     .catch((error) => {

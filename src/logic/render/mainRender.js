@@ -1,14 +1,14 @@
 import renderError from './renderError.js';
-import renderDocuments from './dataRender.js';
 import renderProcessing from './renderProcessing.js';
+import dataRender from './dataRender.js';
 
 export default (state, elements) => (path) => {
   switch (path) {
     case 'errors':
       renderError(state, elements);
       break;
-    case 'addedDocuments':
-      renderDocuments(state, elements);
+    case 'resources':
+      dataRender(state, elements);
       break;
     case 'processing':
       renderProcessing(state, elements);

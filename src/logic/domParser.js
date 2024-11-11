@@ -1,6 +1,32 @@
 export default (xmlDoc) => {
-  console.log(xmlDoc);
   const parser = new DOMParser();
-  const htmlDocument = parser.parseFromString(xmlDoc.data, 'text/html');
-  return htmlDocument;
+  const document = parser.parseFromString(xmlDoc, 'text/xml');
+
+  const channelTitle = document.querySelector('channel > title').textContent.replace(/((<!)?\[CDATA\[)| ?(\]\]>?$)/mg, '');
+  const channelDescription = document.querySelector('channel > description') ? document.querySelector('channel > description').textContent : '';
+  const channelLink = document.querySelector('channel > link').textContent;
+  const items = document.querySelectorAll('item');
+  const documentTree = {
+    title: channelTitle,
+    description: channelDescription,
+    link: channelLink,
+    posts: [],
+  };
+
+  items.forEach((item) => {
+    const title = item.querySelector('title');
+    const description = item.querySelector('description') ? item.querySelector('description').textContent : '';
+    const link = item.querySelector('link');
+    const pubDate = item.querySelector('pubDate');
+
+    documentTree.posts.push({
+      title: title.textContent.replace(/((<!)?\[CDATA\[)| ?(\]\]>?$)/mg, ''),
+      description: description.textContent,
+      link: link.textContent,
+      pubDate: pubDate.textContent,
+    });
+  });
+
+  console.log(documentTree);
+  return documentTree;
 };
