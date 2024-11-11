@@ -12,7 +12,9 @@ const app = () => {
     errors: '',
     processing: 'filling', // sending, sent, editing
     validation: null,
-    resources: [],
+    feeds: [],
+    posts: [],
+    newPosts: [],
   };
 
   const elements = {
@@ -23,6 +25,9 @@ const app = () => {
     feedsContainer: document.querySelector('.feeds'),
     postsContainer: document.querySelector('.posts'),
   };
+  console.dir(elements.postsContainer);
+
+  console.dir(Boolean(elements.postsContainer.firstChild));
 
   const i18n = i18next.createInstance();
   i18n.init({
@@ -37,23 +42,33 @@ const app = () => {
     const formData = new FormData(event.target);
     const url = formData.get('url');
     state.url = url;
-    const urlSchema = yup.string().url().notOneOf(state.resources.map((resource) => resource.link));
+
+    const urlSchema = yup.string().url().notOneOf(state.feeds.map((feed) => feed.link));
+
     urlSchema.validate(state.url)
       .then(() => {
         state.processing = 'sending';
         state.errors = '';
         const documentData = rssRequest(state.url)
           .catch((error) => {
+            console.log(error);
             throw new Error(error.message);
           });
         return documentData;
       })
       .then((documentData) => {
-        console.log(state.resources);
-        state.resources.unshift(domParser(documentData));
+        const { feed, posts } = domParser(documentData);
+        const feedWithId = { ...feed, id: state.feeds.length };
+        state.feeds = [feedWithId, ...state.feeds];
+        const postsWithId = posts
+          .map((post) => ({ ...post, id: state.posts.length, feedId: feedWithId.id }));
+        state.posts = [...state.posts, ...postsWithId];
+        state.newPosts = postsWithId;
+        console.log(postsWithId);
         state.processing = 'filling';
       })
       .catch((error) => {
+        console.log(error);
         state.processing = 'editing';
         state.errors = error.name === 'ValidationError' ? i18n.t(error.type) : i18n.t(error.message);
         state.validation = false;

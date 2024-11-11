@@ -1,18 +1,24 @@
 import renderError from './renderError.js';
 import renderProcessing from './renderProcessing.js';
-import dataRender from './dataRender.js';
+import postsRender from './postsRender.js';
+import feedsRender from './feedsRender.js';
 
-export default (state, elements) => (path) => {
+export default (state, elements) => (path, value) => {
+  console.log(path);
   switch (path) {
     case 'errors':
       renderError(state, elements);
       break;
-    case 'resources':
-      dataRender(state, elements);
+    case 'feeds':
+      feedsRender(value, elements);
+      break;
+    case 'posts':
+      postsRender(value, elements);
       break;
     case 'processing':
       renderProcessing(state, elements);
       break;
+
     default:
   }
 };
