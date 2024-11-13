@@ -1,11 +1,10 @@
-export default (state, elements) => {
+export default (error, elements) => {
   const { feedback } = elements;
   const { input } = elements;
-  const { errors } = state;
-  if (errors) {
+  if (error) {
     input.classList.add('is-invalid');
     feedback.classList.add('text-danger');
-    feedback.textContent = state.errors;
+    feedback.textContent = error;
   } else {
     input.classList.remove('is-invalid');
     feedback.textContent = '';

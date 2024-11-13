@@ -3,20 +3,19 @@ import renderProcessing from './renderProcessing.js';
 import postsRender from './postsRender.js';
 import feedsRender from './feedsRender.js';
 
-export default (state, elements) => (path, value) => {
-  console.log(path);
+export default (elements) => (path, value, previousValue) => {
   switch (path) {
     case 'errors':
-      renderError(state, elements);
+      renderError(value, elements);
       break;
     case 'feeds':
       feedsRender(value, elements);
       break;
     case 'posts':
-      postsRender(value, elements);
+      postsRender(value, previousValue, elements);
       break;
     case 'processing':
-      renderProcessing(state, elements);
+      renderProcessing(value, elements);
       break;
 
     default:

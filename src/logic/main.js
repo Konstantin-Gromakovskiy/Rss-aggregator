@@ -14,7 +14,7 @@ const app = () => {
     validation: null,
     feeds: [],
     posts: [],
-    newPosts: [],
+    addedResources: [],
   };
 
   const elements = {
@@ -25,9 +25,6 @@ const app = () => {
     feedsContainer: document.querySelector('.feeds'),
     postsContainer: document.querySelector('.posts'),
   };
-  console.dir(elements.postsContainer);
-
-  console.dir(Boolean(elements.postsContainer.firstChild));
 
   const i18n = i18next.createInstance();
   i18n.init({
@@ -35,21 +32,40 @@ const app = () => {
     resources,
   });
 
-  const state = onChange(initialState, render(initialState, elements));
+  const state = onChange(initialState, render(elements));
+
+  const interval = (f, timer) => {
+    setTimeout(() => {
+      f();
+      interval(f, timer);
+    }, timer);
+  };
+  const reWritePosts = () => {
+    const { addedResources } = state;
+    if (addedResources.length === 0) return;
+    addedResources.forEach((resource) => {
+      rssRequest(resource)
+        .then((xmlDoc) => {
+          const { posts: newPosts } = domParser(xmlDoc);
+          state.posts = [...state.posts, ...newPosts];
+        });
+    });
+  };
+  interval(reWritePosts, 5000);
 
   elements.form.addEventListener('submit', (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const url = formData.get('url');
-    state.url = url;
 
-    const urlSchema = yup.string().url().notOneOf(state.feeds.map((feed) => feed.link));
+    const urlSchema = yup.string().url().notOneOf(state.addedResources);
 
-    urlSchema.validate(state.url)
+    urlSchema.validate(url)
       .then(() => {
         state.processing = 'sending';
         state.errors = '';
-        const documentData = rssRequest(state.url)
+        state.addedResources.push(url);
+        const documentData = rssRequest(url)
           .catch((error) => {
             console.log(error);
             throw new Error(error.message);
@@ -62,9 +78,7 @@ const app = () => {
         state.feeds = [feedWithId, ...state.feeds];
         const postsWithId = posts
           .map((post) => ({ ...post, id: state.posts.length, feedId: feedWithId.id }));
-        state.posts = [...state.posts, ...postsWithId];
-        state.newPosts = postsWithId;
-        console.log(postsWithId);
+        state.posts = [...postsWithId, ...state.posts];
         state.processing = 'filling';
       })
       .catch((error) => {

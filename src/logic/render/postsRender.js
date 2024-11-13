@@ -1,4 +1,7 @@
-export default (posts, elements) => {
+export default (value, previousValue, elements) => {
+  const posts = value
+    .filter((post) => !previousValue.find((previousPost) => previousPost.link === post.link));
+
   const { postsContainer } = elements;
   if (!postsContainer.firstChild) {
     const card = document.createElement('div');
@@ -17,14 +20,13 @@ export default (posts, elements) => {
     postsList.classList.add('list-group', 'border-0', 'rounded-0');
     card.appendChild(postsList);
   }
-  console.log(23333);
+
   posts.reverse().forEach((post) => {
     const postsList = document.querySelector('ul');
 
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     postsList.prepend(li);
-    // postsList.appendChild(li);
 
     const href = post.link;
     const link = document.createElement('a');
@@ -32,12 +34,12 @@ export default (posts, elements) => {
     link.href = href;
     link.target = '_blank';
     link.textContent = post.title;
-    li.appendChild(link);
+    li.append(link);
 
     const alertButton = document.createElement('button');
     alertButton.type = 'button';
     alertButton.classList.add('btn', 'btn-outline-primary', 'btn-sm');
     alertButton.textContent = 'Просмотр';
-    li.appendChild(alertButton);
+    li.append(alertButton);
   });
 };

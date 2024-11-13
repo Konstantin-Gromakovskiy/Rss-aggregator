@@ -1,10 +1,9 @@
-export default (state, elements) => {
-  const { processing } = state;
+export default (process, elements) => {
   const { input } = elements;
   const { button } = elements;
   const { feedback } = elements;
 
-  switch (processing) {
+  switch (process) {
     case 'filling':
       elements.form.reset();
       elements.input.focus();
