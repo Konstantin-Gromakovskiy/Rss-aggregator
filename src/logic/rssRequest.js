@@ -11,6 +11,6 @@ export default (url) => {
       throw new Error('its not rss');
     })
     .catch((error) => {
-      throw new Error(error.message);
+      throw error;
     });
 };

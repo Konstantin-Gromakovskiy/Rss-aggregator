@@ -37,6 +37,7 @@ export default {
         use: {
           loader: 'babel-loader',
           options: {
+            sourceMaps: true,
             presets: ['@babel/preset-env'],
           },
         },

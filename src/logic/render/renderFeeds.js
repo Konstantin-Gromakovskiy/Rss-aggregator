@@ -1,5 +1,4 @@
-export default (feeds, elements) => {
-  const { feedsContainer } = elements;
+export default (feeds, feedsContainer) => {
   feedsContainer.innerHTML = '';
 
   const card = document.createElement('div');

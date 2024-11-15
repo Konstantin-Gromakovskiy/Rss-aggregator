@@ -1,23 +1,32 @@
 import renderError from './renderError.js';
 import renderProcessing from './renderProcessing.js';
-import postsRender from './postsRender.js';
-import feedsRender from './feedsRender.js';
+import renderPosts from './renderPosts.js';
+import renderFeeds from './renderFeeds.js';
+import renderReadPost from './renderReadPost.js';
+import putPostInModal from './putPostInModal.js';
 
-export default (elements) => (path, value, previousValue) => {
+export default (elements, state) => (path, value, previousValue) => {
   switch (path) {
     case 'errors':
       renderError(value, elements);
       break;
     case 'feeds':
-      feedsRender(value, elements);
+      renderFeeds(value, elements.feedsContainer);
       break;
     case 'posts':
-      postsRender(value, previousValue, elements);
+      renderPosts(value, previousValue, elements.postsContainer);
       break;
     case 'processing':
       renderProcessing(value, elements);
       break;
-
-    default:
+    case 'viewedPostId':
+      renderReadPost(value, elements.postsContainer);
+      break;
+    case 'openedPostId': {
+      const clickedPost = state.posts.find((post) => post.id === value);
+      putPostInModal(clickedPost, elements.modalContainer);
+      break;
+    }
+    default: throw new Error('Unknown path');
   }
 };

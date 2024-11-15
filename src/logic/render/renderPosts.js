@@ -1,8 +1,7 @@
-export default (value, previousValue, elements) => {
+export default (value, previousValue, postsContainer) => {
   const posts = value
-    .filter((post) => !previousValue.find((previousPost) => previousPost.link === post.link));
+    .filter((post) => !previousValue.find((previousPost) => previousPost.id === post.id));
 
-  const { postsContainer } = elements;
   if (!postsContainer.firstChild) {
     const card = document.createElement('div');
     card.classList.add('card', 'border-0');
@@ -30,6 +29,7 @@ export default (value, previousValue, elements) => {
 
     const href = post.link;
     const link = document.createElement('a');
+    link.dataset.id = post.id;
     link.classList.add('fw-bold');
     link.href = href;
     link.target = '_blank';
@@ -38,6 +38,9 @@ export default (value, previousValue, elements) => {
 
     const alertButton = document.createElement('button');
     alertButton.type = 'button';
+    alertButton.dataset.id = post.id;
+    alertButton.dataset.bsToggle = 'modal';
+    alertButton.dataset.bsTarget = '#modal';
     alertButton.classList.add('btn', 'btn-outline-primary', 'btn-sm');
     alertButton.textContent = 'Просмотр';
     li.append(alertButton);

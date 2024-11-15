@@ -8,13 +8,12 @@ import domParser from './domParser.js';
 
 const app = () => {
   const initialState = {
-    url: '',
     errors: '',
-    processing: 'filling', // sending, sent, editing
-    validation: null,
+    processing: 'filling', // sending, editing
     feeds: [],
     posts: [],
-    addedResources: [],
+    openedPostId: null,
+    viewedPostId: null,
   };
 
   const elements = {
@@ -24,6 +23,7 @@ const app = () => {
     feedback: document.querySelector('.feedback'),
     feedsContainer: document.querySelector('.feeds'),
     postsContainer: document.querySelector('.posts'),
+    modalContainer: document.querySelector('.modal-content'),
   };
 
   const i18n = i18next.createInstance();
@@ -32,7 +32,7 @@ const app = () => {
     resources,
   });
 
-  const state = onChange(initialState, render(elements));
+  const state = onChange(initialState, render(elements, initialState));
 
   const interval = (f, timer) => {
     setTimeout(() => {
@@ -41,44 +41,35 @@ const app = () => {
     }, timer);
   };
   const reWritePosts = () => {
-    const { addedResources } = state;
+    const addedResources = state.feeds.map((feed) => feed.resource);
     if (addedResources.length === 0) return;
-    addedResources.forEach((resource) => {
-      rssRequest(resource)
-        .then((xmlDoc) => {
-          const { posts: newPosts } = domParser(xmlDoc);
-          state.posts = [...state.posts, ...newPosts];
-        });
+    const requests = addedResources
+      .map((resource) => rssRequest(resource).then((xmlDoc) => domParser(xmlDoc, state.posts)));
+    Promise.all(requests).then((results) => {
+      const posts = results.flatMap(({ newPosts }) => newPosts);
+      state.posts = [...posts, ...state.posts];
     });
   };
+
   interval(reWritePosts, 5000);
 
   elements.form.addEventListener('submit', (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const url = formData.get('url');
-
-    const urlSchema = yup.string().url().notOneOf(state.addedResources);
+    const addedResources = state.feeds.map((feed) => feed.resource);
+    const urlSchema = yup.string().url().notOneOf(addedResources);
 
     urlSchema.validate(url)
       .then(() => {
         state.processing = 'sending';
         state.errors = '';
-        state.addedResources.push(url);
-        const documentData = rssRequest(url)
-          .catch((error) => {
-            console.log(error);
-            throw new Error(error.message);
-          });
-        return documentData;
+        return rssRequest(url);
       })
       .then((documentData) => {
-        const { feed, posts } = domParser(documentData);
-        const feedWithId = { ...feed, id: state.feeds.length };
-        state.feeds = [feedWithId, ...state.feeds];
-        const postsWithId = posts
-          .map((post) => ({ ...post, id: state.posts.length, feedId: feedWithId.id }));
-        state.posts = [...postsWithId, ...state.posts];
+        const { feed, newPosts } = domParser(documentData, state.posts, state.feeds, url);
+        state.feeds = [feed, ...state.feeds];
+        state.posts = [...newPosts, ...state.posts];
         state.processing = 'filling';
       })
       .catch((error) => {
@@ -88,5 +79,16 @@ const app = () => {
         state.validation = false;
       });
   });
+
+  elements.postsContainer.addEventListener('click', (event) => {
+    if (!event.target.dataset.id) return;
+    const postId = Number(event.target.dataset.id);
+    state.viewedPostId = postId;
+
+    if (event.target.type === 'button') {
+      state.openedPostId = postId;
+    }
+  });
 };
+
 export default app;
