@@ -1,10 +1,17 @@
 import * as yup from 'yup';
 import onChange from 'on-change';
 import i18next from 'i18next';
+import axios from 'axios';
 import render from './render/mainRender.js';
 import resources from '../i18next/resources.js';
-import rssRequest from './rssRequest.js';
 import domParser from './domParser.js';
+
+const addProxy = (url) => {
+  const proxy = 'https://allorigins.hexlet.app/raw';
+  const urlWithProxy = new URL(proxy);
+  urlWithProxy.searchParams.append('url', url);
+  return urlWithProxy;
+};
 
 const app = () => {
   const initialState = {
@@ -44,11 +51,25 @@ const app = () => {
     const addedResources = state.feeds.map((feed) => feed.resource);
     if (addedResources.length === 0) return;
     const requests = addedResources
-      .map((resource) => rssRequest(resource).then((xmlDoc) => domParser(xmlDoc, state.posts)));
+      .map((resource) => {
+        const resourceWithProxy = addProxy(resource);
+        return axios.get(resourceWithProxy)
+          .then((request) => domParser(request.data, state.posts))
+          .catch((error) => {
+            throw error;
+          });
+      });
     Promise.all(requests).then((results) => {
-      const posts = results.flatMap(({ newPosts }) => newPosts);
-      state.posts = [...posts, ...state.posts];
-    });
+      const allPosts = results.flatMap(({ posts }) => posts);
+      const allPostsWithId = allPosts
+        .map((post, index) => ({ ...post, id: state.posts.length + index }));
+      const newPosts = allPostsWithId
+        .filter((post) => !state.posts.find((addedPost) => addedPost.link === post.link));
+      state.posts = [...newPosts, ...state.posts];
+    })
+      .catch((error) => {
+        state.errors = i18n.t(error.message);
+      });
   };
 
   interval(reWritePosts, 5000);
@@ -64,19 +85,22 @@ const app = () => {
       .then(() => {
         state.processing = 'sending';
         state.errors = '';
-        return rssRequest(url);
+        const urlWithProxy = addProxy(url);
+        return axios.get(urlWithProxy);
       })
-      .then((documentData) => {
-        const { feed, newPosts } = domParser(documentData, state.posts, state.feeds, url);
+      .then((response) => {
+        const { feed, posts } = domParser(response.data, state.posts);
+        feed.resource = url;
+        feed.id = state.feeds.length;
         state.feeds = [feed, ...state.feeds];
-        state.posts = [...newPosts, ...state.posts];
+        const newPostsWithId = posts
+          .map((post, index) => ({ ...post, id: state.posts.length + index }));
+        state.posts = [...newPostsWithId, ...state.posts];
         state.processing = 'filling';
       })
       .catch((error) => {
-        console.log(error);
         state.processing = 'editing';
         state.errors = error.name === 'ValidationError' ? i18n.t(error.type) : i18n.t(error.message);
-        state.validation = false;
       });
   });
 
