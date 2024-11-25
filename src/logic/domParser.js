@@ -1,5 +1,4 @@
 export default (document, addedPosts) => {
-  console.log(111);
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(document, 'text/xml');
   if (xmlDoc.querySelector('parsererror')) throw new Error('its not rss');
