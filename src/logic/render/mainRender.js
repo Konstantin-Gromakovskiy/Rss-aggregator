@@ -23,7 +23,7 @@ export default (elements, state) => (path, value, previousValue) => {
       renderReadPost(value, elements.postsContainer);
       break;
     case 'openedPostId': {
-      const clickedPost = state.posts.find((post) => post.id === value);
+      const clickedPost = state.posts.find((post) => Number(post.id) === value);
       putPostInModal(clickedPost, elements.modalContainer);
       break;
     }
