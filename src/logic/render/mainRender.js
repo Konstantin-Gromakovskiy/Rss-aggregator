@@ -5,28 +5,17 @@ import renderFeeds from './renderFeeds.js';
 import renderReadPost from './renderReadPost.js';
 import putPostInModal from './putPostInModal.js';
 
-export default (elements, state) => (path, value, previousValue) => {
-  switch (path) {
-    case 'errors':
-      renderError(value, elements);
-      break;
-    case 'feeds':
-      renderFeeds(value, elements.feedsContainer);
-      break;
-    case 'posts':
-      renderPosts(value, previousValue, elements.postsContainer);
-      break;
-    case 'processing':
-      renderProcessing(value, elements);
-      break;
-    case 'viewedPostId':
-      renderReadPost(value, elements.postsContainer);
-      break;
-    case 'openedPostId': {
-      const clickedPost = state.posts.find((post) => Number(post.id) === value);
-      putPostInModal(clickedPost, elements.modalContainer);
-      break;
-    }
-    default: throw new Error('Unknown path');
-  }
+export default (elements, state, i18n) => (path, value, previousValue) => {
+  const clickedPost = state.posts.find((post) => Number(post.id) === value);
+
+  const mapping = {
+    feeds: () => renderFeeds(value, previousValue, elements.feedsContainer),
+    posts: () => renderPosts(value, previousValue, elements.postsContainer),
+    processing: () => renderProcessing(value, elements),
+    viewedPostId: () => renderReadPost(value, elements.postsContainer),
+    openedPostId: () => putPostInModal(clickedPost, elements.modalContainer),
+    error: () => renderError(value, elements, i18n),
+  };
+
+  mapping[path]();
 };

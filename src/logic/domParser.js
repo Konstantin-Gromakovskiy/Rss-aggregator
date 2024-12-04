@@ -1,11 +1,16 @@
 export default (document) => {
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(document, 'text/xml');
-  if (xmlDoc.querySelector('parsererror')) throw new Error('its not rss');
+  const parseError = xmlDoc.querySelector('parsererror');
+  if (parseError) {
+    const error = new Error(parseError.textContent);
+    error.name = 'ParseError';
+    throw error;
+  }
   const feed = {};
 
   const channelTitle = xmlDoc.querySelector('channel > title').textContent;
-  const channelDescription = xmlDoc.querySelector('channel > description') ? xmlDoc.querySelector('channel > description').textContent : '';
+  const channelDescription = xmlDoc.querySelector('channel > description')?.textContent || '';
   feed.title = channelTitle;
   feed.description = channelDescription;
 

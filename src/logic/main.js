@@ -16,7 +16,7 @@ const addProxy = (url) => {
 
 const app = () => {
   const initialState = {
-    errors: '',
+    error: null,
     processing: 'filling', // sending, editing
     feeds: [],
     posts: [],
@@ -39,32 +39,31 @@ const app = () => {
     lng: 'ru',
     resources,
   }).then(() => {
-    const state = onChange(initialState, render(elements, initialState));
+    const state = onChange(initialState, render(elements, initialState, i18n));
 
     const interval = () => {
       setTimeout(() => {
         const addedResources = state.feeds.map((feed) => feed.resource);
-        if (addedResources.length === 0) return interval();
-        const requests = addedResources.map((resource) => {
-          const resourceWithProxy = addProxy(resource);
-          return axios.get(resourceWithProxy)
-            .then((request) => domParser(request.data))
+        if (addedResources.length === 0) interval();
+        else {
+          const axiosRequests = addedResources.map((resource) => {
+            const resourceWithProxy = addProxy(resource);
+            return axios.get(resourceWithProxy);
+          });
+          Promise.all(axiosRequests)
+            .then((requests) => {
+              const results = requests.map((request) => domParser(request.data));
+              const allPosts = results.flatMap(({ posts }) => posts);
+              const newPosts = allPosts
+                .filter((post) => !state.posts.find((addedPost) => addedPost.link === post.link));
+              const newPostsWithId = newPosts.map((post) => ({ ...post, id: uniqueId() }));
+              state.posts = [...newPostsWithId, ...state.posts];
+            })
             .catch((error) => {
-              throw error;
-            });
-        });
-        return Promise.all(requests)
-          .then((results) => {
-            const allPosts = results.flatMap(({ posts }) => posts);
-            const newPosts = allPosts
-              .filter((post) => !state.posts.find((addedPost) => addedPost.link === post.link));
-            const newPostsWithId = newPosts.map((post) => ({ ...post, id: uniqueId() }));
-            state.posts = [...newPostsWithId, ...state.posts];
-          })
-          .catch((error) => {
-            state.errors = i18n.t(error.message);
-          })
-          .then(() => interval());
+              console.log(error);
+            })
+            .then(() => interval());
+        }
       }, 5000);
     };
 
@@ -79,14 +78,14 @@ const app = () => {
       urlSchema.validate(url)
         .then(() => {
           state.processing = 'sending';
-          state.errors = '';
+          state.error = null;
           const urlWithProxy = addProxy(url);
           return axios.get(urlWithProxy);
         })
         .then((response) => {
           const { feed, posts } = domParser(response.data);
           feed.resource = url;
-          feed.id = state.feeds.length;
+          feed.id = uniqueId();
           state.feeds = [feed, ...state.feeds];
           const newPostsWithId = posts
             .map((post) => ({ ...post, id: uniqueId() }));
@@ -95,7 +94,8 @@ const app = () => {
         })
         .catch((error) => {
           state.processing = 'editing';
-          state.errors = error.name === 'ValidationError' ? i18n.t(error.type) : i18n.t(error.message);
+          state.error = error;
+          console.log(error);
         });
     });
 
