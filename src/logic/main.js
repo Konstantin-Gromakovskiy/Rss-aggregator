@@ -16,7 +16,14 @@ const addProxy = (url) => {
 
 const app = () => {
   const initialState = {
-    error: null,
+    error: {
+      notOneOf: false,
+      url: false,
+      networkError: false,
+      AxiosError: false,
+      ParseError: false,
+      unknownError: false,
+    },
     processing: 'filling', // sending, editing
     feeds: [],
     posts: [],
@@ -78,7 +85,7 @@ const app = () => {
       urlSchema.validate(url)
         .then(() => {
           state.processing = 'sending';
-          state.error = null;
+          Object.keys(state.error).forEach((key) => { state.error[key] = false; });
           const urlWithProxy = addProxy(url);
           return axios.get(urlWithProxy);
         })
@@ -94,8 +101,9 @@ const app = () => {
         })
         .catch((error) => {
           state.processing = 'editing';
-          state.error = error;
-          console.log(error);
+          if (error.name === 'ValidationError') state.error[error.type] = true;
+          else if (['networkError', 'AxiosError', 'ParseError'].includes(error.name)) state.error[error.name] = true;
+          else state.error.unknownError = true;
         });
     });
 
