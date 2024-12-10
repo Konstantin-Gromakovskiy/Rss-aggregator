@@ -9,7 +9,7 @@ export default (process, elements) => {
       elements.input.focus();
       input.readOnly = false;
       button.disabled = false;
-      feedback.textContent = 'Rss успешно загружен';
+      feedback.textContent = 'RSS успешно загружен';
       feedback.classList.remove('text-danger');
       feedback.classList.add('text-success');
       break;

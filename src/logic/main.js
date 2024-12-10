@@ -33,14 +33,12 @@ const app = () => {
     postsContainer: document.querySelector('.posts'),
     modalContainer: document.querySelector('.modal-content'),
   };
-  console.log(resources);
 
   const i18n = i18next.createInstance();
   i18n.init({
     lng: 'ru',
     resources,
   }).then(() => {
-    console.log(i18n.t('exists'));
     const state = onChange(initialState, render(elements, initialState, i18n));
 
     const interval = () => {
