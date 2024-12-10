@@ -7,10 +7,6 @@ const errors = {
   unknown: 'Неизвестная ошибка. Что-то пошло не так.',
 };
 
-const otherText = {
-  success: 'RSS успешно загружен',
-};
-
-const translation = { ...errors, ...otherText };
+const translation = errors;
 
 export default { translation };
