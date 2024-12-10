@@ -16,14 +16,7 @@ const addProxy = (url) => {
 
 const app = () => {
   const initialState = {
-    error: {
-      notOneOf: false,
-      url: false,
-      networkError: false,
-      AxiosError: false,
-      ParseError: false,
-      unknownError: false,
-    },
+    error: null,
     processing: 'filling', // sending, editing
     feeds: [],
     posts: [],
@@ -40,12 +33,14 @@ const app = () => {
     postsContainer: document.querySelector('.posts'),
     modalContainer: document.querySelector('.modal-content'),
   };
+  console.log(resources);
 
   const i18n = i18next.createInstance();
   i18n.init({
     lng: 'ru',
     resources,
   }).then(() => {
+    console.log(i18n.t('exists'));
     const state = onChange(initialState, render(elements, initialState, i18n));
 
     const interval = () => {
@@ -79,13 +74,14 @@ const app = () => {
     elements.form.addEventListener('submit', (event) => {
       event.preventDefault();
       const formData = new FormData(event.target);
-      const url = formData.get('url');
-      const urlSchema = yup.string().url().notOneOf(state.feeds.map((feed) => feed.resource));
+      const url = formData.get('url').trim();
+      const urlSchema = yup
+        .string().url().notOneOf(state.feeds.map((feed) => feed.resource)).required();
 
       urlSchema.validate(url)
         .then(() => {
           state.processing = 'sending';
-          Object.keys(state.error).forEach((key) => { state.error[key] = false; });
+          state.error = null;
           const urlWithProxy = addProxy(url);
           return axios.get(urlWithProxy);
         })
@@ -94,16 +90,26 @@ const app = () => {
           feed.resource = url;
           feed.id = uniqueId();
           state.feeds = [feed, ...state.feeds];
-          const newPostsWithId = posts
-            .map((post) => ({ ...post, id: uniqueId() }));
+          const newPostsWithId = posts.map((post) => ({ ...post, id: uniqueId() }));
           state.posts = [...newPostsWithId, ...state.posts];
           state.processing = 'filling';
         })
         .catch((error) => {
-          state.processing = 'editing';
-          if (error.name === 'ValidationError') state.error[error.type] = true;
-          else if (['networkError', 'AxiosError', 'ParseError'].includes(error.name)) state.error[error.name] = true;
-          else state.error.unknownError = true;
+          const translationErrors = { notOneOf: 'exists', url: 'notUrl', required: 'required' };
+          switch (error.name) {
+            case 'ValidationError':
+              state.error = translationErrors[error.type];
+              break;
+            case 'ParseError':
+              state.error = 'notRss';
+              break;
+            case 'NetworkError':
+              state.error = 'network';
+              break;
+            default:
+              state.error = 'unknown';
+              break;
+          }
         });
     });
 
