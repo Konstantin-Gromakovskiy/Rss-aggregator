@@ -1,4 +1,4 @@
-export default (process, elements) => {
+export default (process, elements, i18n) => {
   const { input } = elements;
   const { button } = elements;
   const { feedback } = elements;
@@ -9,7 +9,7 @@ export default (process, elements) => {
       elements.input.focus();
       input.readOnly = false;
       button.disabled = false;
-      feedback.textContent = 'RSS успешно загружен';
+      feedback.textContent = i18n.t('otherTexts.success');
       feedback.classList.remove('text-danger');
       feedback.classList.add('text-success');
       break;

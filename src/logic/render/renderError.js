@@ -5,7 +5,7 @@ export default (value, elements, i18n) => {
   if (value) {
     input.classList.add('is-invalid');
     feedback.classList.add('text-danger');
-    feedback.textContent = i18n.t(value);
+    feedback.textContent = i18n.t(`errors.${value}`);
   } else {
     input.classList.remove('is-invalid');
     feedback.textContent = '';

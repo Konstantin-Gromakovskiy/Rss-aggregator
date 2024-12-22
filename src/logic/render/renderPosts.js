@@ -1,4 +1,4 @@
-export default (value, previousValue, postsContainer) => {
+export default (value, previousValue, postsContainer, i18n) => {
   const posts = value
     .filter((post) => !previousValue.find((previousPost) => previousPost.id === post.id));
 
@@ -12,7 +12,7 @@ export default (value, previousValue, postsContainer) => {
 
     const cardTitle = document.createElement('h4');
     cardTitle.classList.add('card-title', 'h4');
-    cardTitle.textContent = 'Посты';
+    cardTitle.textContent = i18n.t('otherTexts.posts');
     cardBody.appendChild(cardTitle);
 
     const postsList = document.createElement('ul');
@@ -42,7 +42,7 @@ export default (value, previousValue, postsContainer) => {
     alertButton.dataset.bsToggle = 'modal';
     alertButton.dataset.bsTarget = '#modal';
     alertButton.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    alertButton.textContent = 'Просмотр';
+    alertButton.textContent = i18n.t('otherTexts.preview');
     li.append(alertButton);
   });
 };

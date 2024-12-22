@@ -73,6 +73,10 @@ const app = () => {
       event.preventDefault();
       const formData = new FormData(event.target);
       const url = formData.get('url').trim();
+      yup.setLocale({
+        string: { url: 'notUrl' },
+        mixed: { required: 'required', notOneOf: 'exists' },
+      });
       const urlSchema = yup
         .string().url().notOneOf(state.feeds.map((feed) => feed.resource)).required();
 
@@ -93,10 +97,9 @@ const app = () => {
           state.processing = 'filling';
         })
         .catch((error) => {
-          const translationErrors = { notOneOf: 'exists', url: 'notUrl', required: 'required' };
           switch (error.name) {
             case 'ValidationError':
-              state.error = translationErrors[error.type];
+              state.error = error.message;
               break;
             case 'ParseError':
               state.error = 'notRss';
@@ -115,10 +118,7 @@ const app = () => {
       if (!event.target.dataset.id) return;
       const postId = Number(event.target.dataset.id);
       state.viewedPostId = postId;
-
-      if (event.target.type === 'button') {
-        state.openedPostId = postId;
-      }
+      state.openedPostId = postId;
     });
   });
 };

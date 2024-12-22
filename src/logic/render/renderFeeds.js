@@ -1,4 +1,4 @@
-export default (value, previousValue, feedsContainer) => {
+export default (value, previousValue, feedsContainer, i18n) => {
   const feed = value
     .filter((newFeed) => !previousValue.find((previousFeed) => previousFeed.id === newFeed.id))[0];
 
@@ -13,7 +13,7 @@ export default (value, previousValue, feedsContainer) => {
 
     const cardTitle = document.createElement('h4');
     cardTitle.classList.add('card-title', 'h4');
-    cardTitle.textContent = 'Фиды';
+    cardTitle.textContent = i18n.t('otherTexts.feeds');
     cardBody.appendChild(cardTitle);
 
     const feedsList = document.createElement('ul');
