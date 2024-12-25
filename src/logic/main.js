@@ -17,7 +17,7 @@ const addProxy = (url) => {
 const app = () => {
   const initialState = {
     error: null,
-    processing: 'filling', // sending, editing
+    status: 'idle', // sending, failed, success
     feeds: [],
     posts: [],
     openedPostId: null,
@@ -71,6 +71,7 @@ const app = () => {
 
     elements.form.addEventListener('submit', (event) => {
       event.preventDefault();
+      state.status = 'sending';
       const formData = new FormData(event.target);
       const url = formData.get('url').trim();
       yup.setLocale({
@@ -82,7 +83,6 @@ const app = () => {
 
       urlSchema.validate(url)
         .then(() => {
-          state.processing = 'sending';
           state.error = null;
           const urlWithProxy = addProxy(url);
           return axios.get(urlWithProxy);
@@ -94,7 +94,7 @@ const app = () => {
           state.feeds = [feed, ...state.feeds];
           const newPostsWithId = posts.map((post) => ({ ...post, id: uniqueId() }));
           state.posts = [...newPostsWithId, ...state.posts];
-          state.processing = 'filling';
+          state.status = 'success';
         })
         .catch((error) => {
           switch (error.name) {
@@ -111,6 +111,7 @@ const app = () => {
               state.error = 'unknown';
               break;
           }
+          state.status = 'failed';
         });
     });
 
