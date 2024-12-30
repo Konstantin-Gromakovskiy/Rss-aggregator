@@ -3,8 +3,8 @@ import onChange from 'on-change';
 import i18next from 'i18next';
 import axios from 'axios';
 import uniqueId from 'lodash.uniqueid';
-import render from './render/mainRender.js';
-import resources from '../i18next/resources.js';
+import render from './render.js';
+import resources from './locales/resources.js';
 import domParser from './domParser.js';
 
 const addProxy = (url) => {
@@ -20,8 +20,8 @@ const app = () => {
     status: 'idle', // sending, failed, success
     feeds: [],
     posts: [],
-    openedPostId: null,
-    viewedPostId: null,
+    modalPostId: null,
+    viewedPostIds: [],
   };
 
   const elements = {
@@ -91,7 +91,7 @@ const app = () => {
           const { feed, posts } = domParser(response.data);
           feed.resource = url;
           feed.id = uniqueId();
-          state.feeds = [feed, ...state.feeds];
+          state.feeds = [...state.feeds, feed];
           const newPostsWithId = posts.map((post) => ({ ...post, id: uniqueId() }));
           state.posts = [...newPostsWithId, ...state.posts];
           state.status = 'success';
@@ -117,9 +117,9 @@ const app = () => {
 
     elements.postsContainer.addEventListener('click', (event) => {
       if (!event.target.dataset.id) return;
-      const postId = Number(event.target.dataset.id);
-      state.viewedPostId = postId;
-      state.openedPostId = postId;
+      const postId = event.target.dataset.id;
+      state.viewedPostIds.push(postId);
+      state.modalPostId = postId;
     });
   });
 };
