@@ -71,9 +71,9 @@ const app = () => {
 
     elements.form.addEventListener('submit', (event) => {
       event.preventDefault();
-      state.status = 'sending';
       const formData = new FormData(event.target);
       const url = formData.get('url').trim();
+      state.status = 'sending';
       yup.setLocale({
         string: { url: 'notUrl' },
         mixed: { required: 'required', notOneOf: 'exists' },

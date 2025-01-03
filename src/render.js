@@ -1,41 +1,41 @@
 const renderFeeds = (state, elements, i18n) => {
   const { feeds } = state;
   const { feedsContainer } = elements;
-  const feed = feeds[feeds.length - 1];
 
-  if (feedsContainer.innerHTML === '') {
-    const card = document.createElement('div');
-    card.classList.add('card', 'border-0');
-    feedsContainer.appendChild(card);
+  feedsContainer.innerHTML = '';
 
-    const cardBody = document.createElement('div');
-    cardBody.classList.add('card-body');
-    card.appendChild(cardBody);
+  const card = document.createElement('div');
+  card.classList.add('card', 'border-0');
+  feedsContainer.appendChild(card);
 
-    const cardTitle = document.createElement('h4');
-    cardTitle.classList.add('card-title', 'h4');
-    cardTitle.textContent = i18n.t('otherTexts.feeds');
-    cardBody.appendChild(cardTitle);
+  const cardBody = document.createElement('div');
+  cardBody.classList.add('card-body');
+  card.appendChild(cardBody);
 
-    const feedsList = document.createElement('ul');
-    feedsList.classList.add('list-group', 'border-0', 'rounded-0');
-    card.appendChild(feedsList);
-  }
+  const cardTitle = document.createElement('h4');
+  cardTitle.classList.add('card-title', 'h4');
+  cardTitle.textContent = i18n.t('otherTexts.feeds');
+  cardBody.appendChild(cardTitle);
 
-  const feedsList = feedsContainer.querySelector('ul');
-  const feedElem = document.createElement('li');
-  feedElem.classList.add('list-group-item', 'border-0', 'border-end-0');
-  feedsList.appendChild(feedElem);
+  const feedsList = document.createElement('ul');
+  feedsList.classList.add('list-group', 'border-0', 'rounded-0');
+  card.appendChild(feedsList);
 
-  const feedTitle = document.createElement('h3');
-  feedTitle.classList.add('h6', 'm-0');
-  feedTitle.textContent = feed.title;
-  feedElem.appendChild(feedTitle);
+  [...feeds].reverse().forEach((feed) => {
+    const feedElem = document.createElement('li');
+    feedElem.classList.add('list-group-item', 'border-0', 'border-end-0');
+    feedsList.appendChild(feedElem);
 
-  const feedDescription = document.createElement('p');
-  feedDescription.classList.add('m-0', 'small', 'text-black-50');
-  feedDescription.textContent = feed.description;
-  feedElem.appendChild(feedDescription);
+    const feedTitle = document.createElement('h3');
+    feedTitle.classList.add('h6', 'm-0');
+    feedTitle.textContent = feed.title;
+    feedElem.appendChild(feedTitle);
+
+    const feedDescription = document.createElement('p');
+    feedDescription.classList.add('m-0', 'small', 'text-black-50');
+    feedDescription.textContent = feed.description;
+    feedElem.appendChild(feedDescription);
+  });
 };
 
 const renderPosts = (state, elements, i18n) => {
@@ -43,25 +43,24 @@ const renderPosts = (state, elements, i18n) => {
   const { viewedPostIds } = state;
   const { postsContainer } = elements;
 
-  if (!postsContainer.firstChild) {
-    const card = document.createElement('div');
-    card.classList.add('card', 'border-0');
-    postsContainer.appendChild(card);
-    const cardBody = document.createElement('div');
-    cardBody.classList.add('card-body');
-    card.appendChild(cardBody);
+  postsContainer.innerHTML = '';
 
-    const cardTitle = document.createElement('h4');
-    cardTitle.classList.add('card-title', 'h4');
-    cardTitle.textContent = i18n.t('otherTexts.posts');
-    cardBody.appendChild(cardTitle);
+  const card = document.createElement('div');
+  card.classList.add('card', 'border-0');
+  postsContainer.appendChild(card);
+  const cardBody = document.createElement('div');
+  cardBody.classList.add('card-body');
+  card.appendChild(cardBody);
 
-    const postsList = document.createElement('ul');
-    postsList.classList.add('list-group', 'border-0', 'rounded-0');
-    card.appendChild(postsList);
-  }
+  const cardTitle = document.createElement('h4');
+  cardTitle.classList.add('card-title', 'h4');
+  cardTitle.textContent = i18n.t('otherTexts.posts');
+  cardBody.appendChild(cardTitle);
 
-  const postsList = document.querySelector('ul');
+  const postsList = document.createElement('ul');
+  postsList.classList.add('list-group', 'border-0', 'rounded-0');
+  card.appendChild(postsList);
+
   postsList.innerHTML = '';
   [...posts].reverse().forEach((post) => {
     const li = document.createElement('li');
