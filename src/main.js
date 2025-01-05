@@ -8,7 +8,7 @@ import resources from './locales/resources.js';
 import domParser from './domParser.js';
 
 const addProxy = (url) => {
-  const proxy = 'https://allorigins.hexlet.app/raw';
+  const proxy = 'https://allorigins.hexlet.app/get';
   const urlWithProxy = new URL(proxy);
   urlWithProxy.searchParams.append('url', url);
   return urlWithProxy;
@@ -51,8 +51,8 @@ const app = () => {
             return axios.get(resourceWithProxy);
           });
           Promise.all(axiosRequests)
-            .then((requests) => {
-              const results = requests.map((request) => domParser(request.data));
+            .then((responses) => {
+              const results = responses.map((response) => domParser(response.data.contents));
               const allPosts = results.flatMap(({ posts }) => posts);
               const newPosts = allPosts
                 .filter((post) => !state.posts.find((addedPost) => addedPost.link === post.link));
@@ -88,7 +88,7 @@ const app = () => {
           return axios.get(urlWithProxy);
         })
         .then((response) => {
-          const { feed, posts } = domParser(response.data);
+          const { feed, posts } = domParser(response.data.contents);
           feed.resource = url;
           feed.id = uniqueId();
           state.feeds = [...state.feeds, feed];
