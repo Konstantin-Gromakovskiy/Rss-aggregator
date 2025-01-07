@@ -105,7 +105,7 @@ const app = () => {
             case 'ParseError':
               state.error = 'notRss';
               break;
-            case 'NetworkError':
+            case 'AxiosError':
               state.error = 'network';
               break;
             default:

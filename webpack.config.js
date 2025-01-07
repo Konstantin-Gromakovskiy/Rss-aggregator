@@ -3,7 +3,9 @@
 import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { fileURLToPath } from 'url';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
+const isProduction = process.env.NODE_ENV === 'production';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -27,6 +29,9 @@ export default {
     new HtmlWebpackPlugin({
       template: 'index.html',
     }),
+    new MiniCssExtractPlugin({
+      filename: 'style.css',
+    }),
     // Add your plugins here
     // Learn more about plugins from https://webpack.js.org/configuration/plugins/
   ],
@@ -46,7 +51,7 @@ export default {
       {
         test: /\.scss$/,
         use: [
-          'style-loader',
+          isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
           'css-loader',
           'postcss-loader',
           {
