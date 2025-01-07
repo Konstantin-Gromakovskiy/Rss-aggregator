@@ -10,6 +10,7 @@ import domParser from './domParser.js';
 const addProxy = (url) => {
   const proxy = 'https://allorigins.hexlet.app/get';
   const urlWithProxy = new URL(proxy);
+  urlWithProxy.searchParams.append('disableCache', 'true');
   urlWithProxy.searchParams.append('url', url);
   return urlWithProxy;
 };
