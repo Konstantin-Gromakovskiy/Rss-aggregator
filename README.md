@@ -1,6 +1,5 @@
 ### Hexlet tests, Code Climate and linter status:
 [![Actions Status](https://github.com/Konstantin-Gromakovskiy/frontend-project-11/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/Konstantin-Gromakovskiy/frontend-project-11/actions)
-[![Maintainability](https://api.codeclimate.com/v1/badges/a158ff74a20035959363/maintainability)](https://codeclimate.com/github/Konstantin-Gromakovskiy/frontend-project-11/maintainability)
 
 
 ## Rss aggregator
